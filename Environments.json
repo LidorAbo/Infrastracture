@@ -1,0 +1,14 @@
+{
+  "eu-medium": {
+    "aws_region": "eu-west-2",
+    "vpc_id": "vpc-033f7359ca4ef99c3",
+    "subnet_prefix": "prod",
+    "security_group_id": "sg-0e3d99ebf3a91b6c7"
+  },
+  "eu-small": {
+    "aws_region": "us-east-1",
+    "vpc_id": "vpc-0d640677",
+    "subnet_prefix": "dev",
+    "security_group_id": "sg-a177b8fb",
+  }
+}
