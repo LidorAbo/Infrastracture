@@ -1,10 +1,14 @@
 ---
-- hosts: all
-  remote_user: ubuntu
-  become: yes
-  name: Install requirements to run playbook properly and run python module
+- name: Pre Tasks
+  hosts: "{{ service }}"
   gather_facts: false
   pre_tasks:
-   - raw: timedatectl  set-timezone Asia/Jerusalem && apt update && apt install -y ntpdate && ntpdate ntp.ubuntu.com && apt update && apt install -y python-pip && pip install docker
+    #- local_action: wait_for port=22 host={% if ansible_ssh_host is defined %}{{ ansible_ssh_host }}{% else %}{{ inventory_hostname }}{% endif %}
+    - raw: timedatectl  set-timezone Asia/Jerusalem && ntpdate ntp.ubuntu.com && apt update && apt install -y python-pip
+    - setup:
+
+- name: "Deploy {{ service }}"
+  hosts:  "{{ service }}"
   roles:
-         - { role: dockerize}
+    - { role: roles/common}
+    - { role: "roles/{{ service }}"}

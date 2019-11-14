@@ -1,0 +1,65 @@
+{
+  "variables": {
+    "aws_access_key": "",
+    "aws_secret_key": "",
+    "instance_region": "eu-west-2",
+    "target_regions": "eu-west-2",
+    "path_to_private_key": "/var/jenkins_home/.ssh/pr.pem",
+    "aws_keypair_name": "pr",
+    "ssh_username": "ubuntu",
+    "communicator": "ssh"
+  },
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "ami_name": "Startup_Image_{{timestamp}}",
+      "access_key": "{{user `aws_access_key`}}",
+      "secret_key": "{{user `aws_secret_key`}}",
+      "region": "{{user `instance_region`}}",
+      "tags": {
+        "purpose": "build"
+      },
+      "instance_type": "t2.micro",
+      "associate_public_ip_address": true,
+      "ssh_username": "ubuntu",
+      "ssh_interface": "private_ip",
+      "ami_regions": "{{user `target_regions`}}",
+      "security_group_id": "sg-0e3d99ebf3a91b6c7",
+      "subnet_id": "subnet-0fb9fab528de886ad",
+      "communicator": "{{user `communicator`}}",
+      "ssh_username": "{{user `ssh_username`}}",
+      "ssh_keypair_name": "{{user `aws_keypair_name`}}",
+      "ssh_agent_auth": false,
+      "ssh_private_key_file": "{{user `path_to_private_key`}}",
+      "launch_block_device_mappings": [
+        {
+          "device_name": "/dev/sda1",
+          "volume_size": 30,
+          "volume_type": "gp2",
+          "delete_on_termination": true
+        }
+      ],
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "name": "ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*",
+          "root-device-type": "ebs"
+        },
+        "owners": ["aws-marketplace"],
+        "most_recent": true
+
+      },
+      "run_tags": {
+        "Name": "Packer_Builder"
+      }
+
+    }
+  ],
+
+  "provisioners": [
+    {
+      "type": "shell-local",
+      "inline": ["ansible-playbook -i inventory_aws_ec2.yaml services.yaml"]
+    }
+  ]
+}

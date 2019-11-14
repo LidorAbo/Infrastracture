@@ -1,0 +1,12 @@
+---
+- hosts: tag_Name_Packer_Builder
+  pre_tasks:
+    #- local_action: wait_for port=22 host={% if ansible_ssh_host is defined %}{{ ansible_ssh_host }}{% else %}{{ inventory_hostname }}{% endif %}
+    - raw: timedatectl  set-timezone Asia/Jerusalem && apt-get update && apt install -y ntpdate && ntpdate ntp.ubuntu.com  && apt install -y python3-pip
+  tasks:
+    - name: Install docker package
+      apt:
+        name: docker.io
+        update_cache: yes
+        state: latest
+

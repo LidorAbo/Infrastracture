@@ -1,3 +1,0 @@
----
-# vars file for dockerize
-string_to_check: "Hello world!"

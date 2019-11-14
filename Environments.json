@@ -9,6 +9,6 @@
     "aws_region": "us-east-1",
     "vpc_id": "vpc-0d640677",
     "subnet_prefix": "dev",
-    "security_group_id": "sg-a177b8fb",
+    "security_group_id": "sg-a177b8fb"
   }
 }

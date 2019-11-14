@@ -1,0 +1,66 @@
+def packer_json_file = 'packer.json'
+def packer_folder = 'packer'
+pipeline{
+    options {
+        timeout(10)
+        ansiColor(emulator)
+        }
+        agent {
+            label 'master'
+        }
+        stages {
+            stage('checkout') {
+                steps {
+                    script {
+                        dir(infrastructure_rep.split(path_seperator)[4].split(dot)[0]) {
+                            deleteDir()
+                            checkout([$class: 'GitSCM', branches: [[name: '*/' + dev]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'git-cred-id', url: infrastructure_rep]]])
+                        }
+                    }
+                }
+
+            }
+            stage('Validate packer.json syntex') {
+                steps {
+                    script {
+                        ansiColor(emulator) {
+                            dir(infrastructure_rep.split(path_seperator)[4].split(dot)[0]) {
+                                dir(packer_folder) {
+                                    try {
+                                        sh "packer validate $packer_json_file"
+                                    }
+                                    catch (exception) {
+                                        println("The packer json is not validated")
+                                        currentBuild.result = pipeline_failure_indicator_string
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            stage('Creating AMI') {
+                steps {
+                    script {
+                        dir(packer_folder) {
+                            try {
+                                aws_secret_key = sh(script: "aws configure get aws_secret_access_key --profile default", returnStdout: true).trim()
+                                aws_access_key = sh(script: "aws configure get aws_access_key_id --profile default", returnStdout: true).trim()
+                                sh "packer build -var 'aws_secret_key'=$aws_secret_key -var 'aws_access_key'=$aws_access_key $packer_json_file"
+
+
+                            }
+                            catch (exception) {
+                                println("Build $packer_json_file is failed")
+                                currentBuild.result = pipeline_failure_indicator_string
+
+                            }
+
+
+                        }
+                    }
+                }
+            }
+
+        }
+    }

@@ -1,0 +1,9 @@
+plugin: aws_ec2
+regions:
+  - eu-west-2
+keyed_groups:
+  - prefix: tag_Service_
+    key: tags.Service
+    separator: ''
+compose:
+  ansible_host: private_ip_address
